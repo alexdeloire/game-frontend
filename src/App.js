@@ -3,28 +3,28 @@ import { Application, Assets, AnimatedSprite, Texture, Container} from 'pixi.js'
 import mqtt from 'mqtt';
 
 const [width, height] = [800, 500];
+const idPlayer = 0;
+const characterPosition = { x: 0, y: 0 };
+const container = new Container();
 
 const JetFighter = () => {
   const containerRef = useRef(null);
-  const container = new Container();
-
-  const characterPosition = { x: 0, y: 0 };
 
   const handleKeyDown = (e) => {
     const speed = 5; // Adjust the speed as needed
     console.log(e.key);
     switch (e.key) {
       case 'ArrowUp':
-        characterPosition.y -= speed;
+        //characterPosition.y -= speed;
         break;
       case 'ArrowDown':
-        characterPosition.y += speed;
+        //characterPosition.y += speed;
         break;
       case 'ArrowLeft':
-        characterPosition.x -= speed;
+        //characterPosition.x -= speed;
         break;
       case 'ArrowRight':
-        characterPosition.x += speed;
+        //characterPosition.x += speed;
         break;
       default:
         break;
@@ -107,13 +107,27 @@ const App = () =>
     });
 
     newClient.on('message', (topic, payload) => {
-      console.log('MQTT message received:', payload.toString());
-
-      // Check if the message is for the subscribed topic
-      if (topic === incomingTopic) {
-        // Update the state with the received message
-        setReceivedMessages((prevMessages) => [...prevMessages, payload.toString()]);
+      
+      // parse the payload as a json object exemple : {"data": [{"id": 0, "x": 0, "y": 0},{"id": 1, "x": 0, "y": 0}]}
+      try {
+        const data = JSON.parse(payload.toString());  
+        console.log(data);
+        // search for the id of the character
+        const dataPlayer = data.data.find((element) => element.id === idPlayer);
+        console.log(dataPlayer);
+        if (dataPlayer === undefined || dataPlayer === null) {
+          return;
+        }
+        // update the position of the character
+        characterPosition.x = dataPlayer.x;
+        characterPosition.y = dataPlayer.y;
+        container.x = characterPosition.x;
+        container.y = characterPosition.y;
+      } catch (error) {
+        console.log(error);
       }
+      
+
     });
 
     newClient.on('close', () => {
