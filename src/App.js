@@ -10,38 +10,8 @@ const container = new Container();
 const JetFighter = () => {
   const containerRef = useRef(null);
 
-  const handleKeyDown = (e) => {
-    const speed = 5; // Adjust the speed as needed
-    console.log(e.key);
-    switch (e.key) {
-      case 'ArrowUp':
-        //characterPosition.y -= speed;
-        break;
-      case 'ArrowDown':
-        //characterPosition.y += speed;
-        break;
-      case 'ArrowLeft':
-        //characterPosition.x -= speed;
-        break;
-      case 'ArrowRight':
-        //characterPosition.x += speed;
-        break;
-      default:
-        break;
-    }
 
-    // Update the character position
-    container.x = characterPosition.x;
-    container.y = characterPosition.y;
-    console.log(container);
-  };
 
-  useEffect(() => {
-    document.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  }, []);
 
   async function loadTexture() {
 
@@ -91,8 +61,8 @@ const App = () =>
 
 
   const [client, setClient] = useState(null);
-  const [incomingTopic, setIncomingTopic] = useState('yoloYUI');
-  const [outgoingTopic, setOutgoingTopic] = useState('yoloYUIi');
+  const [incomingTopic, setIncomingTopic] = useState('yoloYUIi');
+  const [outgoingTopic, setOutgoingTopic] = useState('yoloYUI');
   const [message, setMessage] = useState('');
   const [receivedMessages, setReceivedMessages] = useState([]);
 
@@ -145,8 +115,42 @@ const App = () =>
     if (client) {
       // Publish the message to the specified outgoing topic
       client.publish(outgoingTopic, message);
+      document.addEventListener('keydown', handleKeyDown);
     }
   };
+
+  useEffect(() => {
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+
+  const handleKeyDown = (e) => {
+    // const speed = 5; // Adjust the speed as needed
+    console.log(e.key);
+    console.log(client);
+    if (!client) {
+      return;
+    }
+    switch (e.key) {
+      case 'ArrowUp':
+        console.log("up publish")
+        client.publish(outgoingTopic, message);
+        break;
+      case 'ArrowDown':
+        client.publish(`yoloYUI/${idPlayer}`, "0|down");
+        break;
+      case 'ArrowLeft':
+        client.publish(`yoloYUI/${idPlayer}`, "0|left");
+        break;
+      case 'ArrowRight':
+        client.publish(`yoloYUI/${idPlayer}`, "0|right");
+        break;
+      default:
+        break;
+    }
+  }
 
   return (
     <div>
