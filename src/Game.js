@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Application, Assets, AnimatedSprite, Texture, Container} from 'pixi.js';
 import mqtt from 'mqtt';
+import axios from 'axios';
 
 
 
@@ -13,7 +14,7 @@ const Game = () => {
     const outgoingData = "yoloYUI";
     
     const [width, height] = [800, 500];
-    const idPlayer = 0;
+    let idPlayer = null;
     const characterPosition = { x: 0, y: 0 };
     let app = null;
     const container = new Container();
@@ -21,6 +22,7 @@ const Game = () => {
 
     
     useEffect(() => {
+        getIdPlayer();
         loadTextures();
         connectionMqtt();
         if (mqttClient === null) {
@@ -29,6 +31,20 @@ const Game = () => {
             keyListener();
         }
     }, []);
+
+    function getIdPlayer() {
+        if (idPlayer !== null) {
+            return;
+        }   
+        axios.get('http://localhost:8080/connection')
+            .then((response) => {
+                idPlayer = response.data.playerID;
+                console.log('idPlayer', idPlayer);
+            })
+            .catch((error) => {
+                console.error('There was an error!', error);
+            });
+    }
 
 
     async function loadTextures() {
@@ -58,8 +74,6 @@ const Game = () => {
 
         const anim = new AnimatedSprite(frames);
 
-        anim.x = app.screen.width / 2;
-        anim.y = app.screen.height / 2;
         anim.anchor.set(0.5);
         anim.animationSpeed = 0.2;
         anim.play();
