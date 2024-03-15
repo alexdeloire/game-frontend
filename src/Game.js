@@ -11,10 +11,13 @@ const Game = () => {
     let mqttClient = null;
     const incomingData = "yoloYUIi";
     const outgoingData = "yoloYUI";
+
     
     const [width, height] = [800, 500];
     const idPlayer = 0;
-    const characterPosition = { x: 0, y: 0 };
+    let characterPosition = { x: 0, y: 0 };
+    let animationFrame = {};
+    let dir = 'down';
     let app = null;
     const container = new Container();
 
@@ -50,19 +53,18 @@ const Game = () => {
 
         await Assets.load('./assets/spritesheet.json');
 
-        const frames = [];
-        frames.push(Texture.from(`Perso1_down_0.png`));
-        frames.push(Texture.from(`Perso1_down_1.png`));
-        frames.push(Texture.from(`Perso1_down_0.png`));
-        frames.push(Texture.from(`Perso1_down_2.png`));
+    
+        animationFrame["down"] = [0, 1, 0, 2].map((i) => Texture.from(`Perso1_down_${i}.png`));
+        animationFrame["up"] = [0, 1, 0, 2].map((i) => Texture.from(`Perso1_up_${i}.png`));
+        animationFrame["left"] = [0, 1, 0, 2].map((i) => Texture.from(`Perso1_left_${i}.png`));
+        animationFrame["right"] = [0, 1, 0, 2].map((i) => Texture.from(`Perso1_right_${i}.png`));
 
-        const anim = new AnimatedSprite(frames);
 
-        anim.x = app.screen.width / 2;
-        anim.y = app.screen.height / 2;
+        const anim = new AnimatedSprite(animationFrame[dir]);
+
         anim.anchor.set(0.5);
         anim.animationSpeed = 0.2;
-        anim.play();
+        //anim.play();
         
         container.addChild(anim);
         app.stage.addChild(container);
@@ -89,6 +91,10 @@ const Game = () => {
                 characterPosition.y = dataPlayer.y;
                 container.x = characterPosition.x;
                 container.y = characterPosition.y;
+                // update the direction of the character
+                dir = {0: 'up', 1: 'right', 2: 'down', 3: 'left'}[dataPlayer.dir];
+                container.getChildAt(0).textures = animationFrame[dir];
+
             } catch (error) {
                 console.log(error);
             }
