@@ -15,28 +15,35 @@ const Game = () => {
     
     const [width, height] = [800, 500];
     let idPlayer = null;
-    const characterPosition = { x: 0, y: 0 };
+    let playersContainer = {};
+    let characterPosition = { x: 0, y: 0 };
+    let animationFrame = {};
+    let dir = 'down';
     let app = null;
     const container = new Container();
-
+    let loading = false;
 
     
     useEffect(() => {
-        getIdPlayer();
-        loadTextures();
-        connectionMqtt();
-        if (mqttClient === null) {
-            console.log('mqttClient is null');
-        } else {
-            keyListener();
+        if (!loading) {
+            loading = true;
+            getIdPlayer();
+            loadTextures();
+            connectionMqtt();
+            if (mqttClient === null) {
+                console.log('mqttClient is null');
+            } else {
+                keyListener();
+            }
         }
+
     }, []);
 
     function getIdPlayer() {
         if (idPlayer !== null) {
             return;
         }   
-        axios.get('http://localhost:8080/connection')
+        axios.get('http://162.38.111.28:8080/connection')
             .then((response) => {
                 idPlayer = response.data.playerID;
                 console.log('idPlayer', idPlayer);
@@ -66,17 +73,18 @@ const Game = () => {
 
         await Assets.load('./assets/spritesheet.json');
 
-        const frames = [];
-        frames.push(Texture.from(`Perso1_down_0.png`));
-        frames.push(Texture.from(`Perso1_down_1.png`));
-        frames.push(Texture.from(`Perso1_down_0.png`));
-        frames.push(Texture.from(`Perso1_down_2.png`));
+    
+        animationFrame["down"] = [0, 1, 0, 2].map((i) => Texture.from(`Perso1_down_${i}.png`));
+        animationFrame["up"] = [0, 1, 0, 2].map((i) => Texture.from(`Perso1_up_${i}.png`));
+        animationFrame["left"] = [0, 1, 0, 2].map((i) => Texture.from(`Perso1_left_${i}.png`));
+        animationFrame["right"] = [0, 1, 0, 2].map((i) => Texture.from(`Perso1_right_${i}.png`));
 
-        const anim = new AnimatedSprite(frames);
+
+        const anim = new AnimatedSprite(animationFrame[dir]);
 
         anim.anchor.set(0.5);
         anim.animationSpeed = 0.2;
-        anim.play();
+        //anim.play();
         
         container.addChild(anim);
         app.stage.addChild(container);
@@ -103,6 +111,12 @@ const Game = () => {
                 characterPosition.y = dataPlayer.y;
                 container.x = characterPosition.x;
                 container.y = characterPosition.y;
+                // update the direction of the character
+                dir = {0: 'up', 1: 'right', 2: 'down', 3: 'left'}[dataPlayer.dir];
+                container.getChildAt(0).textures = animationFrame[dir];
+
+                updatePlayers(data.data.filter((element) => element.id !== idPlayer));
+
             } catch (error) {
                 console.log(error);
             }
@@ -110,6 +124,34 @@ const Game = () => {
 
         mqttClient.on('close', () => {
             console.log('closed');
+        });
+    }
+
+    function updatePlayers(players) {
+        players.forEach((player) => {
+            if (player.id === idPlayer) {
+                return;
+            }
+            const dir = {0: 'up', 1: 'right', 2: 'down', 3: 'left'}[player.dir];
+            if (player.id in playersContainer) {
+                const cont = playersContainer[player.id];
+                cont.x = player.x;
+                cont.y = player.y;
+                const anim = cont.getChildAt(0);
+                anim.textures = animationFrame[dir];
+            } else {
+                const cont = new Container();
+                const anim = new AnimatedSprite(animationFrame[dir]);
+                anim.anchor.set(0.5);
+                anim.animationSpeed = 0.2;
+                //anim.play();
+                cont.addChild(anim);
+                cont.x = player.x;
+                cont.y = player.y;
+                playersContainer[player.id] = cont;
+                app.stage.addChild(cont);
+            }
+
         });
     }
 
