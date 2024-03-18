@@ -43,7 +43,7 @@ const Game = () => {
         if (idPlayer !== null) {
             return;
         }   
-        axios.get('http://162.38.111.28:8080/connection')
+        axios.get('http://localhost:8080/connection')
             .then((response) => {
                 idPlayer = response.data.playerID;
                 console.log('idPlayer', idPlayer);
@@ -91,7 +91,7 @@ const Game = () => {
     }
 
     function connectionMqtt() {
-        mqttClient = mqtt.connect('ws://mqtt.eclipseprojects.io:80/mqtt');
+        mqttClient = mqtt.connect('wss://mqtt.eclipseprojects.io:443/mqtt');
 
         mqttClient.on('connect', () => {
             console.log('connected');
