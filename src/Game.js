@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Application, Assets, AnimatedSprite, Texture, Container} from 'pixi.js';
+import { Application, Assets, AnimatedSprite, Texture, Container, Ticker, TilingSprite } from 'pixi.js';
 import mqtt from 'mqtt';
 import axios from 'axios';
 
@@ -10,8 +10,8 @@ const Game = () => {
     const containerRef = useRef(null);
 
     let mqttClient = null;
-    const incomingData = "yoloYUIi";
-    const outgoingData = "yoloYUI";
+    const incomingData = "yoloYUIidev";
+    const outgoingData = "yoloYUIdev";
     
     const [width, height] = [800, 500];
     let idPlayer = null;
@@ -22,6 +22,7 @@ const Game = () => {
     let app = null;
     const container = new Container();
     let loading = false;
+    let keyPressed = null;
 
     
     useEffect(() => {
@@ -35,15 +36,32 @@ const Game = () => {
             } else {
                 keyListener();
             }
-        }
+            
+            window.addEventListener('beforeunload', handleBeforeUnload);
+            
+            startTicker();
 
+            return () => {
+                window.removeEventListener('beforeunload', handleBeforeUnload);
+            };
+        }
     }, []);
+
+    // Fonction pour gérer l'événement beforeunload
+    const handleBeforeUnload = () => {
+        if (mqttClient) {
+            // Envoyer un message de déconnexion par MQTT
+            mqttClient.publish(outgoingData + `/${idPlayer}`, `${idPlayer}|close`);
+            // Fermer la connexion MQTT
+            mqttClient.end();
+        }
+    };
 
     function getIdPlayer() {
         if (idPlayer !== null) {
             return;
         }   
-        axios.get('http://162.38.111.28:8080/connection')
+        axios.get('http://192.168.17.194:8080/connection')
             .then((response) => {
                 idPlayer = response.data.playerID;
                 console.log('idPlayer', idPlayer);
@@ -72,6 +90,7 @@ const Game = () => {
         containerRef.current.appendChild(app.canvas);
 
         await Assets.load('./assets/spritesheet.json');
+        await Assets.load('./assets/floor.png');
 
     
         animationFrame["down"] = [0, 1, 0, 2].map((i) => Texture.from(`Perso1_down_${i}.png`));
@@ -88,6 +107,11 @@ const Game = () => {
         
         container.addChild(anim);
         app.stage.addChild(container);
+
+
+        const floorTexture = Texture.from('./assets/floor.png', width, height);
+        const tilemap = new TilingSprite(floorTexture);
+        app.stage.addChild(tilemap);
     }
 
     function connectionMqtt() {
@@ -112,10 +136,13 @@ const Game = () => {
                 container.x = characterPosition.x;
                 container.y = characterPosition.y;
                 // update the direction of the character
-                dir = {0: 'up', 1: 'right', 2: 'down', 3: 'left'}[dataPlayer.dir];
-                container.getChildAt(0).textures = animationFrame[dir];
-
+                const newdir = {0: 'up', 1: 'right', 2: 'down', 3: 'left'}[dataPlayer.dir];
+                if (dir !== newdir) {
+                    dir = newdir;
+                    container.getChildAt(0).textures = animationFrame[dir];
+                }
                 updatePlayers(data.data.filter((element) => element.id !== idPlayer));
+                
 
             } catch (error) {
                 console.log(error);
@@ -123,11 +150,21 @@ const Game = () => {
         });
 
         mqttClient.on('close', () => {
+            mqttClient.publish(outgoingData + `/${idPlayer}`, `${idPlayer}|close`)
             console.log('closed');
         });
     }
 
+
     function updatePlayers(players) {
+        // remove players that are not in the list
+        Object.keys(playersContainer).forEach((key) => {
+            if (!players.find((player) => player.id === key)) {
+                app.stage.removeChild(playersContainer[key]);
+                delete playersContainer[key];
+            }
+        });
+
         players.forEach((player) => {
             if (player.id === idPlayer) {
                 return;
@@ -143,7 +180,9 @@ const Game = () => {
                 const cont = new Container();
                 const anim = new AnimatedSprite(animationFrame[dir]);
                 anim.anchor.set(0.5);
-                anim.animationSpeed = 0.2;
+                anim.animationSpeed = 0.1;
+                anim.loop = true;
+                anim.autoUpdate = false;
                 //anim.play();
                 cont.addChild(anim);
                 cont.x = player.x;
@@ -156,24 +195,62 @@ const Game = () => {
     }
 
 
-    function keyListener() {
+    function keyListener() {    
         window.addEventListener('keydown', (e) => {
-            const topic = outgoingData + `/${idPlayer}` 
-            if (e.key === 'ArrowUp') {
-                mqttClient.publish(topic, `${idPlayer}|up`);
+            if (keyPressed === null) {
+                if (e.key === 'ArrowUp') {
+                    keyPressed = 'up';
+                }
+                else if (e.key === 'ArrowDown') {
+                    keyPressed = 'down';
+                }
+                else if (e.key === 'ArrowLeft') {
+                    keyPressed = 'left';
+                }
+                else if (e.key === 'ArrowRight') {
+                    keyPressed = 'right';
+                }
+                if (keyPressed !== null) {
+                    //container.getChildAt(0).play();
+                }
             }
-            else if (e.key === 'ArrowDown') {
-                mqttClient.publish(topic, `${idPlayer}|down`);
+        });
+
+        window.addEventListener('keyup', (e) => {
+            if (e.key === 'ArrowUp' && keyPressed === 'up') {
+                keyPressed = null;
             }
-            else if (e.key === 'ArrowLeft') {
-                mqttClient.publish(topic, `${idPlayer}|left`);
+            else if (e.key === 'ArrowDown' && keyPressed === 'down') {
+                keyPressed = null;
             }
-            else if (e.key === 'ArrowRight') {
-                mqttClient.publish(topic, `${idPlayer}|right`);
+            else if (e.key === 'ArrowLeft' && keyPressed === 'left') {
+                keyPressed = null;
+            }
+            else if (e.key === 'ArrowRight' && keyPressed === 'right') {
+                keyPressed = null;
+            }
+            if (keyPressed === null) {
+                //container.getChildAt(0).gotoAndStop(0);
             }
         });
     }
 
+    const startTicker = () => {
+        Ticker.shared.minFPS = 1;
+        Ticker.shared.maxFPS = 10;
+        Ticker.shared.add(tick);
+    };
+
+    const tick = (delta) => {
+        //console.log('Ticker ticked! Delta:', delta);
+        if (keyPressed !== null) {
+            const topic = outgoingData + `/${idPlayer}` 
+            mqttClient.publish(topic, `${idPlayer}|${keyPressed}`);
+
+            //container.getChildAt(0).update(delta);
+            
+        }
+    };
 
 
     return <div ref={containerRef}></div>;
