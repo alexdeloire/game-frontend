@@ -21,6 +21,7 @@ const Game = () => {
     let dir = 'down';
     let app = null;
     const container = new Container();
+    const background = new Container();
     let loading = false;
     let keyPressed = null;
 
@@ -90,7 +91,9 @@ const Game = () => {
         containerRef.current.appendChild(app.canvas);
 
         await Assets.load('./assets/spritesheet.json');
-        await Assets.load('./assets/floor.png');
+        await Assets.load('./assets/1.png');
+        await Assets.load('./assets/2.png');
+        await Assets.load('./assets/3.png');
 
     
         animationFrame["down"] = [0, 1, 0, 2].map((i) => Texture.from(`Perso1_down_${i}.png`));
@@ -109,9 +112,25 @@ const Game = () => {
         app.stage.addChild(container);
 
 
-        const floorTexture = Texture.from('./assets/floor.png', width, height);
-        const tilemap = new TilingSprite(floorTexture);
-        app.stage.addChild(tilemap);
+        const floorTexture = Texture.from('./assets/1.png');
+        const wayTexture = Texture.from('./assets/3.png');
+        const borderTexture = Texture.from('./assets/2.png');
+        for (let i = 0; i < 25; i++) {
+            for (let j = 0; j < 16; j++) {
+                let tile;
+                if (i <= 2) {
+                    tile = new TilingSprite(wayTexture);
+                } else if (i === 3) {
+                    tile = new TilingSprite(borderTexture);
+                } else {
+                    tile = new TilingSprite(floorTexture);
+                }
+                tile.position.set(i * 32, j * 32);
+                background.addChild(tile);
+            }
+        }
+
+        app.stage.addChildAt(background, 0);
     }
 
     function connectionMqtt() {
@@ -131,10 +150,14 @@ const Game = () => {
                   return;
                 }
                 // update the position of the character
-                characterPosition.x = dataPlayer.x;
-                characterPosition.y = dataPlayer.y;
-                container.x = characterPosition.x;
-                container.y = characterPosition.y;
+                //characterPosition.x = dataPlayer.x;
+                //characterPosition.y = dataPlayer.y;
+                //container.x = characterPosition.x;
+                //container.y = characterPosition.y;
+                container.x = 400;
+                container.y = 250;
+                background.x = -dataPlayer.x + 400;
+                background.y = -dataPlayer.y + 250;
                 // update the direction of the character
                 const newdir = {0: 'up', 1: 'right', 2: 'down', 3: 'left'}[dataPlayer.dir];
                 if (dir !== newdir) {
