@@ -14,12 +14,16 @@ const Game = () => {
     const outgoingData = "yoloYUIdev";
     
     const [width, height] = [800, 500];
+    const center = { x: width / 2, y: height / 2 };
+    const mapSize = { x: 1200, y: 750 };
     let idPlayer = null;
     let playersContainer = {};
     let characterPosition = { x: 0, y: 0 };
+    let screenView = { x: 0, y: 0 };
     let animationFrame = {};
     let dir = 'down';
     let app = null;
+    let timeSinceLastPing = 0;
     const container = new Container();
     const background = new Container();
     let loading = false;
@@ -62,7 +66,7 @@ const Game = () => {
         if (idPlayer !== null) {
             return;
         }   
-        axios.get('http://192.168.17.194:8080/connection')
+        axios.get('http://162.38.37.120:8080/connection')
             .then((response) => {
                 idPlayer = response.data.playerID;
                 console.log('idPlayer', idPlayer);
@@ -115,12 +119,12 @@ const Game = () => {
         const floorTexture = Texture.from('./assets/1.png');
         const wayTexture = Texture.from('./assets/3.png');
         const borderTexture = Texture.from('./assets/2.png');
-        for (let i = 0; i < 25; i++) {
-            for (let j = 0; j < 16; j++) {
+        for (let i = 0; i < 37; i++) {
+            for (let j = 0; j < 24; j++) {
                 let tile;
-                if (i <= 2) {
+                if (i <= 4) {
                     tile = new TilingSprite(wayTexture);
-                } else if (i === 3) {
+                } else if (i === 5) {
                     tile = new TilingSprite(borderTexture);
                 } else {
                     tile = new TilingSprite(floorTexture);
@@ -150,14 +154,11 @@ const Game = () => {
                   return;
                 }
                 // update the position of the character
-                //characterPosition.x = dataPlayer.x;
-                //characterPosition.y = dataPlayer.y;
-                //container.x = characterPosition.x;
-                //container.y = characterPosition.y;
-                container.x = 400;
-                container.y = 250;
-                background.x = -dataPlayer.x + 400;
-                background.y = -dataPlayer.y + 250;
+                characterPosition.x = dataPlayer.x;
+                characterPosition.y = dataPlayer.y;
+                updateView();
+                container.x = characterPosition.x - screenView.x;
+                container.y = characterPosition.y - screenView.y;
                 // update the direction of the character
                 const newdir = {0: 'up', 1: 'right', 2: 'down', 3: 'left'}[dataPlayer.dir];
                 if (dir !== newdir) {
@@ -178,6 +179,27 @@ const Game = () => {
         });
     }
 
+    function updateView() {
+        if (characterPosition.x < center.x) {
+            screenView.x = 0;
+        } else if (characterPosition.x > mapSize.x - center.x) {
+            screenView.x = mapSize.x - width;
+        }
+        else {
+            screenView.x = characterPosition.x - center.x;
+        }
+        if (characterPosition.y < center.y) {
+            screenView.y = 0;
+        } else if (characterPosition.y > mapSize.y - center.y) {
+            screenView.y = mapSize.y - height;
+        }
+        else {
+            screenView.y = characterPosition.y - center.y;
+        }
+        background.x = -screenView.x;
+        background.y = -screenView.y;
+    }
+
 
     function updatePlayers(players) {
         // remove players that are not in the list
@@ -195,8 +217,8 @@ const Game = () => {
             const dir = {0: 'up', 1: 'right', 2: 'down', 3: 'left'}[player.dir];
             if (player.id in playersContainer) {
                 const cont = playersContainer[player.id];
-                cont.x = player.x;
-                cont.y = player.y;
+                cont.x = player.x - screenView.x;
+                cont.y = player.y - screenView.y;
                 const anim = cont.getChildAt(0);
                 anim.textures = animationFrame[dir];
             } else {
@@ -208,8 +230,8 @@ const Game = () => {
                 anim.autoUpdate = false;
                 //anim.play();
                 cont.addChild(anim);
-                cont.x = player.x;
-                cont.y = player.y;
+                cont.x = player.x - screenView.x;
+                cont.y = player.y - screenView.y;
                 playersContainer[player.id] = cont;
                 app.stage.addChild(cont);
             }
@@ -266,12 +288,19 @@ const Game = () => {
 
     const tick = (delta) => {
         //console.log('Ticker ticked! Delta:', delta);
+        timeSinceLastPing += delta.deltaMS;   
         if (keyPressed !== null) {
             const topic = outgoingData + `/${idPlayer}` 
             mqttClient.publish(topic, `${idPlayer}|${keyPressed}`);
-
-            //container.getChildAt(0).update(delta);
-            
+            timeSinceLastPing = 0;
+            //container.getChildAt(0).update(delta); 
+        } else {
+            if (timeSinceLastPing > 1000) {
+                console.log('ping');
+                const topic = outgoingData + `/${idPlayer}` 
+                mqttClient.publish(topic, `${idPlayer}|ping`);
+                timeSinceLastPing = 0;
+            }
         }
     };
 
