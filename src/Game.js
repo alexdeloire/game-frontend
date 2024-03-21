@@ -26,6 +26,7 @@ const Game = () => {
     let timeSinceLastPing = 0;
     const container = new Container();
     const background = new Container();
+    const carContainer = new Container();
     let loading = false;
     let keyPressed = null;
 
@@ -66,7 +67,7 @@ const Game = () => {
         if (idPlayer !== null) {
             return;
         }   
-        axios.get('http://162.38.37.120:8080/connection')
+        axios.get('http://192.168.96.149:8080/connection')
             .then((response) => {
                 idPlayer = response.data.playerID;
                 console.log('idPlayer', idPlayer);
@@ -98,6 +99,8 @@ const Game = () => {
         await Assets.load('./assets/1.png');
         await Assets.load('./assets/2.png');
         await Assets.load('./assets/3.png');
+        await Assets.load('./assets/4.png');
+        await Assets.load('./assets/car.png');
 
     
         animationFrame["down"] = [0, 1, 0, 2].map((i) => Texture.from(`Perso1_down_${i}.png`));
@@ -119,13 +122,14 @@ const Game = () => {
         const floorTexture = Texture.from('./assets/1.png');
         const wayTexture = Texture.from('./assets/3.png');
         const borderTexture = Texture.from('./assets/2.png');
+        const border2Texture = Texture.from('./assets/4.png');
         for (let i = 0; i < 37; i++) {
             for (let j = 0; j < 24; j++) {
                 let tile;
-                if (i <= 4) {
+                if (j > 18) {
                     tile = new TilingSprite(wayTexture);
-                } else if (i === 5) {
-                    tile = new TilingSprite(borderTexture);
+                } else if (j === 18) {
+                    tile = new TilingSprite(border2Texture);
                 } else {
                     tile = new TilingSprite(floorTexture);
                 }
@@ -135,6 +139,16 @@ const Game = () => {
         }
 
         app.stage.addChildAt(background, 0);
+
+        const car = new TilingSprite(Texture.from('./assets/car.png'));
+        car.anchor.set(0, 1);
+        carContainer.addChild(car);
+        //carContainer.x = 320;
+        //carContainer.y = 320;
+
+        app.stage.addChild(carContainer);
+    
+        
     }
 
     function connectionMqtt() {
@@ -150,6 +164,7 @@ const Game = () => {
             try{
                 const data = JSON.parse(payload.toString());
                 const dataPlayer = data.data.find((element) => element.id === idPlayer);
+                const dataCar = data.car;
                 if (dataPlayer === undefined || dataPlayer === null) {
                   return;
                 }
@@ -159,6 +174,10 @@ const Game = () => {
                 updateView();
                 container.x = characterPosition.x - screenView.x;
                 container.y = characterPosition.y - screenView.y;
+                if (dataCar !== undefined && dataCar !== null) {
+                    carContainer.x = dataCar.x - screenView.x;
+                    carContainer.y = dataCar.y - screenView.y;
+                }
                 // update the direction of the character
                 const newdir = {0: 'up', 1: 'right', 2: 'down', 3: 'left'}[dataPlayer.dir];
                 if (dir !== newdir) {
