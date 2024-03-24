@@ -67,7 +67,7 @@ const Game = () => {
         if (idPlayer !== null) {
             return;
         }   
-        axios.get('http://192.168.96.149:8080/connection')
+        axios.get('http://localhost:8080/connection')
             .then((response) => {
                 idPlayer = response.data.playerID;
                 console.log('idPlayer', idPlayer);
@@ -123,7 +123,7 @@ const Game = () => {
         const wayTexture = Texture.from('./assets/3.png');
         const borderTexture = Texture.from('./assets/2.png');
         const border2Texture = Texture.from('./assets/4.png');
-        for (let i = 0; i < 37; i++) {
+        for (let i = 0; i < 38; i++) {
             for (let j = 0; j < 24; j++) {
                 let tile;
                 if (j > 18) {
@@ -167,6 +167,16 @@ const Game = () => {
                 const dataCar = data.car;
                 if (dataPlayer === undefined || dataPlayer === null) {
                   return;
+                }
+                if (dataPlayer.x !== characterPosition.x || dataPlayer.y !== characterPosition.y) {
+                    if (!container.getChildAt(0).playing) {
+                        container.getChildAt(0).play();
+                    }
+                }
+                if (dataPlayer.x === characterPosition.x && dataPlayer.y === characterPosition.y) {
+                    if (container.getChildAt(0).playing) {
+                        container.getChildAt(0).gotoAndStop(0);
+                    }
                 }
                 // update the position of the character
                 characterPosition.x = dataPlayer.x;
@@ -307,8 +317,9 @@ const Game = () => {
 
     const tick = (delta) => {
         //console.log('Ticker ticked! Delta:', delta);
-        timeSinceLastPing += delta.deltaMS;   
+        timeSinceLastPing += delta.deltaMS;
         if (keyPressed !== null) {
+            console.log(characterPosition.x, characterPosition.y)
             const topic = outgoingData + `/${idPlayer}` 
             mqttClient.publish(topic, `${idPlayer}|${keyPressed}`);
             timeSinceLastPing = 0;
