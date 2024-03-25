@@ -1,6 +1,6 @@
 <div align="center">
 
-# Frontend Template
+# Frontend for the game Club IG
 
 <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
 
@@ -13,7 +13,7 @@ French version of this : [README.fr.md](README.fr.md)
 
 ### **Description**
 
-This React frontend template not only boasts a robust security framework but also upholds GDPR compliance and ensures accessibility for visually impaired users. It seamlessly integrates with the specified backend, providing a reliable foundation for your web development needs.
+This is a React frontend for the game Club IG. An online MMORPG game with an open and interactive world where players can also chat with each other.
 
 ---
 
@@ -26,10 +26,10 @@ This React frontend template not only boasts a robust security framework but als
 
 ## Main Features
 
-- Highly secure with two token authentication
-- Easy to add features
-- RGPD compliant
-- Accessible for visually impaired users
+- Multiplayer
+- Open world
+- Chat
+- Interaction with the world
 
 ## Table of Contents
 
@@ -37,7 +37,6 @@ This React frontend template not only boasts a robust security framework but als
   - [Pre-requisites](#pre-requisites)
   - [Running the project](#running-the-project)
 - [Documentation](#documentation)
-  - [Folder structure](#folder-structure)
 - [Contributions](#contributions)
   - [Authors](#authors)
   - [Version control](#version-control)
@@ -48,9 +47,7 @@ This React frontend template not only boasts a robust security framework but als
 ## Pre-requisites
 <sup>[(Back to top)](#table-of-contents)</sup>
 
-You need Node.js installed on your machine.
-
-This frontend can be use with this [backend](https://github.com/alexdeloire/backend_template).
+You need to have a package manager installed on your machine (npm or yarn).
 
 ## Running the project
 <sup>[(Back to top)](#table-of-contents)</sup>
@@ -64,57 +61,7 @@ npm start
 # Documentation
 <sup>[(Back to top)](#table-of-contents)</sup>
 
-Comments provided throughout the code. Feel free to contact me for any questions.
-
-
-## Folder structure
-<sup>[(Back to top)](#table-of-contents)</sup>
-
-The project is structured as follows:
-```bash
-.
-├── LICENSE.txt
-├── package.json
-├── package-lock.json
-├── README.fr.md
-├── README.md
-└── src
-    ├── api
-    │   └── axios.js
-    ├── App.js
-    ├── components
-    │   ├── Layout.js
-    │   ├── Missing.js
-    │   ├── NavBar.js
-    │   ├── PersistLogin.js
-    │   ├── RequireAuth.js
-    │   └── Unauthorized.js
-    ├── context
-    │   └── AuthProvider.js
-    ├── hooks
-    │   ├── useAuth.js
-    │   ├── useAxiosPrivate.js
-    │   ├── useLogout.js
-    │   └── useRefreshToken.js
-    ├── index.css
-    ├── index.js
-    ├── styles
-    │   ├── admin.css
-    │   ├── festival-info.css
-    │   └── poste-referent.css
-    └── views
-        ├── Admin.js
-        ├── ChangePassword.js
-        ├── ItemList.js
-        ├── Home.js
-        ├── UserContent.js
-        ├── LinkPage.js
-        ├── Login.js
-        ├── Profile.js
-        ├── Register.js
-        ├── RGPD.js
-        └── UsersSearch.js
-```
+The documentation is given and feel free to ask any questions.
 
 # Contributions
 <sup>[(Back to top)](#table-of-contents)</sup>
