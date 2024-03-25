@@ -17,7 +17,7 @@ const Chat = () => {
   }, []);
 
   const mqttConnection = () => {
-        const client = mqtt.connect('ws://mqtt.eclipseprojects.io:80/mqtt');
+        const client = mqtt.connect('wss://mqtt.eclipseprojects.io:443/mqtt');
 
         client.on('connect', () => {
         console.log('MQTT connected');
