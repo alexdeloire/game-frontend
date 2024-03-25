@@ -10,8 +10,8 @@ const Game = () => {
     const containerRef = useRef(null);
 
     let mqttClient = null;
-    const incomingData = "yoloYUIidev";
-    const outgoingData = "yoloYUIdev";
+    const incomingData = "yoloYUIi";
+    const outgoingData = "yoloYUI";
     
     const [width, height] = [800, 500];
     const center = { x: width / 2, y: height / 2 };
@@ -67,7 +67,7 @@ const Game = () => {
         if (idPlayer !== null) {
             return;
         }   
-        axios.get('http://localhost:8080/connection')
+        axios.get('https://polytech1.home.lange.xyz/connection')
             .then((response) => {
                 idPlayer = response.data.playerID;
                 console.log('idPlayer', idPlayer);
