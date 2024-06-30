@@ -1,6 +1,6 @@
 <div align="center">
 
-# Template Frontend
+# Frontend Jeu Club IG
 
 <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/"><img alt="Licence Creative Commons" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-nd/4.0/88x31.png" /></a><br />Ce(tte) œuvre est mise à disposition selon les termes de la <a rel="license" href="http://creativecommons.org/licenses/by-nc-nd/4.0/">Licence Creative Commons Attribution - Pas d&#39;Utilisation Commerciale - Pas de Modification 4.0 International</a>.
 
@@ -13,7 +13,7 @@ Version anglaise de ce document : [README.md](README.md)
 
 ### **Description**
 
-Ce modèle frontend React non seulement offre un cadre de sécurité robuste, mais garantit également la conformité au RGPD et assure l'accessibilité aux utilisateurs malvoyants. Il s'intègre parfaitement au backend spécifié, offrant une base fiable pour vos besoins en développement web.
+Ceci est un frontend React pour le jeu Club IG. Un jeu MMORPG en ligne avec un monde ouvert et interactif ou les joueurs peuvent également discuter entre eux.
 
 ---
 
@@ -26,11 +26,10 @@ Ce modèle frontend React non seulement offre un cadre de sécurité robuste, ma
 
 ## Fonctionnalités
 
-- Très sécurisé avec une double authentification par jeton*
-- Facile à ajouter des fonctionnalités
-- Conforme au RGPD
-- Accessible aux utilisateurs malvoyants
-
+- Multijoueur
+- Monde ouvert
+- Chat
+- Interaction avec le monde
 
 ## Table des matières
 
@@ -38,7 +37,6 @@ Ce modèle frontend React non seulement offre un cadre de sécurité robuste, ma
   - [Prérequis](#prérequis)
   - [Lancement](#lancement)
 - [Documentation](#documentation)
-  - [Structure du projet](#structure-du-projet)
 - [Contributions](#contributions)
   - [Auteurs](#auteurs)
   - [Contrôle des versions](#contrôle-des-versions)
@@ -49,9 +47,7 @@ Ce modèle frontend React non seulement offre un cadre de sécurité robuste, ma
 ## Prérequis
 <sup>[(Retour en haut)](#table-des-matières)</sup>
 
-Il est nécessaire d'avoir installé Node.js sur votre machine.
-
-Ce frontend peut être utilisé avec ce [backend](https://github.com/alexdeloire/backend_template).
+Il est nécessaire d'avoir un gestionnaire de paquets installé sur votre machine (npm ou yarn).
 
 ## Lancement
 <sup>[(Retour en haut)](#table-des-matières)</sup>
@@ -65,57 +61,7 @@ npm start
 # Documentation
 <sup>[(Retour en haut)](#table-des-matières)</sup>
 
-Commentaires fournis tout au long du code. N'hésitez pas à me contacter pour toute question.
-
-## Structure du projet
-<sup>[(Retour en haut)](#table-des-matières)</sup>
-
-Voici la structure du projet :
-
-```bash
-.
-├── LICENSE.txt
-├── package.json
-├── package-lock.json
-├── README.fr.md
-├── README.md
-└── src
-    ├── api
-    │   └── axios.js
-    ├── App.js
-    ├── components
-    │   ├── Layout.js
-    │   ├── Missing.js
-    │   ├── NavBar.js
-    │   ├── PersistLogin.js
-    │   ├── RequireAuth.js
-    │   └── Unauthorized.js
-    ├── context
-    │   └── AuthProvider.js
-    ├── hooks
-    │   ├── useAuth.js
-    │   ├── useAxiosPrivate.js
-    │   ├── useLogout.js
-    │   └── useRefreshToken.js
-    ├── index.css
-    ├── index.js
-    ├── styles
-    │   ├── admin.css
-    │   ├── festival-info.css
-    │   └── poste-referent.css
-    └── views
-        ├── Admin.js
-        ├── ChangePassword.js
-        ├── ItemList.js
-        ├── Home.js
-        ├── UserContent.js
-        ├── LinkPage.js
-        ├── Login.js
-        ├── Profile.js
-        ├── Register.js
-        ├── RGPD.js
-        └── UsersSearch.js
-```
+La documentation est fournie et n'hésitez pas à me contacter pour toute question.
 
 # Contributions
 <sup>[(Retour en haut)](#table-des-matières)</sup>
